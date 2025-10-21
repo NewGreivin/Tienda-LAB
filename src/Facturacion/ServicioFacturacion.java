@@ -41,27 +41,17 @@ public class ServicioFacturacion {
     }
 
     public void emitirFactura(int numero, List<CanalNotificacion> canales){
-        repo.buscar(numero).ifPresent(f->{
-            f.setEstado(EstadoFactura.EMITIDA);
-            repo.guardar(f);
-            // envío automático multi-canal
-            for (CanalNotificacion c : canales) {
-                notificador.enviar(f, c);
-            }
-        });
+        var action = new AccionEmitirFactura(repo, notificador, canales);
+        action.ejecutar(numero);
     }
 
     public void pagarFactura(int numero){
-        repo.buscar(numero).ifPresent(f->{ 
-            f.setEstado(EstadoFactura.PAGADA);
-            repo.guardar(f); 
-        });
+        var action = new PagarFacturaAction(repo);
+        action.ejecutar(numero);
     }
     public void anularFactura(int numero){
-        repo.buscar(numero).ifPresent(f->{ 
-            f.setEstado(EstadoFactura.ANULADA);
-            repo.guardar(f); 
-        });
+        var action = new AccionAnularFactura(repo);
+        action.ejecutar(numero);
     }
 
     public List<Factura> listar(){ 
