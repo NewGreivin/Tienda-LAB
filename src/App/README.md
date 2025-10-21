@@ -58,3 +58,8 @@ El diseño sigue principios de **buenas prácticas**, **encapsulamiento**, **sep
 └── README.md
 
 ## 🧩 Patrones de diseño aplicados
+Patrón de diseño aplicado: Singleton -> Marisol
+Dónde se aplicó: Clase RepositorioFacturas
+Justificación: Solo tiene que haber un solo historial de 
+facturas en el proyecto, hace que no hayan dos facturas 
+iguales, errores o que use memoria de más, solo quedaría una instancia
