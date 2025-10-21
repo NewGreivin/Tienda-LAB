@@ -35,7 +35,7 @@ public class App {
         RepositorioCategorias repoCate = new RepositorioCategorias();
         RepositorioProductos repoProd = new RepositorioProductos();
         RepositorioClientes repoClie  = new RepositorioClientes();
-        RepositorioFacturas repoFact  = new RepositorioFacturas();
+        RepositorioFacturas repoFact  = RepositorioFacturas.getInstancia();
 
         ServicioCatalogo servCata = new ServicioCatalogo(repoCate, repoProd);
         ServicioClientes servClie = new ServicioClientes(repoClie);
