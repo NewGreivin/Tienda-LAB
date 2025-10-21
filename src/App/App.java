@@ -16,6 +16,7 @@ import Catalogo.Producto;
 import Catalogo.RepositorioCategorias;
 import Catalogo.RepositorioProductos;
 import Catalogo.ServicioCatalogo;
+import Facades.TiendaFacade;
 import java.io.UnsupportedEncodingException;
 
 import java.time.LocalDate;
@@ -35,14 +36,17 @@ public class App {
         RepositorioCategorias repoCate = new RepositorioCategorias();
         RepositorioProductos repoProd = new RepositorioProductos();
         RepositorioClientes repoClie  = new RepositorioClientes();
-        RepositorioFacturas repoFact  = new RepositorioFacturas();
+        RepositorioFacturas repoFact  = RepositorioFacturas.getInstancia();
 
-        ServicioCatalogo servCata = new ServicioCatalogo(repoCate, repoProd);
-        ServicioClientes servClie = new ServicioClientes(repoClie);
-        ServicioNotificaciones servNoti = new ServicioNotificaciones();
-        ServicioFacturacion servFact = new ServicioFacturacion(repoFact, servNoti);
+    ServicioCatalogo servCata = new ServicioCatalogo(repoCate, repoProd);
+    ServicioClientes servClie = new ServicioClientes(repoClie);
+    ServicioNotificaciones servNoti = new ServicioNotificaciones();
+    ServicioFacturacion servFact = new ServicioFacturacion(repoFact, servNoti);
 
-        seedDatos(servCata, servClie);
+    // Crear fachada que agrupa los servicios
+    TiendaFacade tienda = new TiendaFacade(servCata, servClie, servFact, servNoti);
+
+    seedDatos(tienda);
 
         while (true){
             System.out.println("=== TIENDA ===");
@@ -56,19 +60,22 @@ public class App {
             System.out.print("Opción: ");
             String op = sc.nextLine().trim();
             switch (op){
-                case "1" -> menuCategorias(servCata);
-                case "2" -> menuProductos(servCata);
-                case "3" -> menuClientes(servClie);
-                case "4" -> menuFacturacion(servFact, servCata, servClie);
-                case "5" -> menuListados(servFact);
-                case "6" -> mostrarHistorial(servNoti);
+                case "1" -> menuCategorias(tienda);
+                case "2" -> menuProductos(tienda);
+                case "3" -> menuClientes(tienda);
+                case "4" -> menuFacturacion(tienda);
+                case "5" -> menuListados(tienda);
+                case "6" -> mostrarHistorial(tienda);
                 case "0" -> { System.out.println("¡Adiós!"); return; }
                 default -> System.out.println(ERR + "Opción inválida.");
             }
         }
     }
 
-    private static void seedDatos(ServicioCatalogo catalogo, ServicioClientes clientes){
+    private static void seedDatos(TiendaFacade tienda){
+        ServicioCatalogo catalogo = tienda.getServicioCatalogo();
+        ServicioClientes clientes = tienda.getServicioClientes();
+
         var c1 = new Categoria(1,"Alimentos","Comestibles", true);
         var c2 = new Categoria(2,"Tecnología","Electrónica", true);
         catalogo.crearCategoria(c1); catalogo.crearCategoria(c2);
@@ -84,7 +91,8 @@ public class App {
 
     // =================== MENÚS ===================
 
-    private static void menuCategorias(ServicioCatalogo catalogo){
+    private static void menuCategorias(TiendaFacade tienda){
+        ServicioCatalogo catalogo = tienda.getServicioCatalogo();
         System.out.println("-- Categorías --");
         catalogo.listarCategorias().forEach(System.out::println);
         System.out.println("a-Crear");
@@ -122,7 +130,8 @@ public class App {
         }
     }
 
-    private static void menuProductos(ServicioCatalogo catalogo){
+    private static void menuProductos(TiendaFacade tienda){
+        ServicioCatalogo catalogo = tienda.getServicioCatalogo();
         System.out.println("-- Productos --");
         catalogo.listarProductos().forEach(System.out::println);
         System.out.println("a-Crear");
@@ -207,7 +216,8 @@ public class App {
         }
     }
 
-    private static void menuClientes(ServicioClientes clientes){
+    private static void menuClientes(TiendaFacade tienda){
+        ServicioClientes clientes = tienda.getServicioClientes();
         System.out.println("-- Clientes --");
         clientes.listarClientes().forEach(System.out::println);
         System.out.println("a-Crear");
@@ -293,7 +303,10 @@ public class App {
         }
     }
 
-    private static void menuFacturacion(ServicioFacturacion fact, ServicioCatalogo catalogo, ServicioClientes clientes){
+    private static void menuFacturacion(TiendaFacade tienda){
+        ServicioFacturacion fact = tienda.getServicioFacturacion();
+        ServicioCatalogo catalogo = tienda.getServicioCatalogo();
+        ServicioClientes clientes = tienda.getServicioClientes();
         System.out.println("-- Facturación --");
         System.out.println("a-Crear factura");
         System.out.println("i-Agregar ítem");
@@ -390,7 +403,8 @@ public class App {
         }
     }
 
-    private static void menuListados(ServicioFacturacion fact){
+    private static void menuListados(TiendaFacade tienda){
+        ServicioFacturacion fact = tienda.getServicioFacturacion();
         System.out.println("-- Listado de facturas --");
         System.out.println("1-Todas");
         System.out.println("2-Por estado");
@@ -424,7 +438,8 @@ public class App {
         }
     }
 
-    private static void mostrarHistorial(ServicioNotificaciones n){
+    private static void mostrarHistorial(TiendaFacade tienda){
+        ServicioNotificaciones n = tienda.getServicioNotificaciones();
         System.out.println("-- Historial de notificaciones --");
         n.getHistorial().forEach(System.out::println);
     }

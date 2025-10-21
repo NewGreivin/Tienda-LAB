@@ -17,6 +17,21 @@ import java.util.stream.Collectors;
  * @author jprod
  */
 public class RepositorioFacturas {
+    private static RepositorioFacturas instancia;
+    
+    private RepositorioFacturas(){
+        
+    }
+
+    public static RepositorioFacturas getInstancia() {
+        if(instancia == null){
+            instancia = new RepositorioFacturas();
+        }
+        return instancia;
+    }
+    
+    
+    
     private final Map<Integer, Factura> data = new HashMap<>();
     
     public void guardar(Factura f){
