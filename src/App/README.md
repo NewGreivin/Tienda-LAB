@@ -63,3 +63,9 @@ Dónde se aplicó: Clase RepositorioFacturas
 Justificación: Solo tiene que haber un solo historial de 
 facturas en el proyecto, hace que no hayan dos facturas 
 iguales, errores o que use memoria de más, solo quedaría una instancia
+
+El patrón Template Method se usa para crear un “molde” del proceso, donde la estructura general del algoritmo ya está definida, y las subclases solo se encargan de los pasos que cambian. Así, todas las operaciones siguen el mismo flujo, evitamos repetir código y es mucho más fácil ampliar o mantener el sistema.
+
+El patron de diseño FACATE se aplico en todos, ya que funciona como un cordinador entre lose servicios contra el Archivo Main, con esto todo esta coordinado con esa solo clase, sin necesidad de estar llamando una por una
+
+Se aplicó el patrón Command en el módulo de Facturación para encapsular las acciones como objetos independientes, permitiendo desacoplar la ejecución de las operaciones, facilitar la incorporación de nuevos comandos y mejorar la organización y mantenibilidad del código
