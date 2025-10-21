@@ -5,7 +5,7 @@ import Clientes.MetodoPago;
 import Clientes.RepositorioClientes;
 import Clientes.ServicioClientes;
 import Clientes.TipoMetodoPago;
-import Facturacion.EstadoFactura;
+import Facturacion.*;
 import Facturacion.ItemFactura;
 import Facturacion.RepositorioFacturas;
 import Facturacion.ServicioFacturacion;
@@ -26,6 +26,7 @@ import java.util.Scanner;
 
 public class App {
     private static final Scanner sc = new Scanner(System.in);
+    private static final CommandInvoker invoker = new CommandInvoker();
 
     private static final String OK  = "✅ ";
     private static final String ERR = "❌ ";
@@ -314,6 +315,7 @@ public class App {
         System.out.println("p-Pagar");
         System.out.println("x-Anular");
         System.out.println("v-Ver factura");
+        System.out.println("h-Ver historial de comandos");
         System.out.println("Otra para volver");
         String op=sc.nextLine().trim();
 
@@ -324,8 +326,9 @@ public class App {
                     System.out.print("Id cliente: "); String idc=sc.nextLine();
                     var cliOpt = clientes.listarClientes().stream().filter(c->c.getId().equals(idc)).findFirst();
                     if(cliOpt.isPresent()){
-                        var f = fact.crearFactura(num, cliOpt.get());
-                        System.out.println(OK + "Creada: "+f);
+                        Command cmd = new CrearFacturaCommand(fact, num, cliOpt.get());
+                        invoker.executeCommand(cmd);
+                        System.out.println(OK + "Factura creada.");
                     } else {
                         System.out.println(ERR + "Cliente no existe.");
                     }
@@ -348,7 +351,8 @@ public class App {
                     if (cant <= 0){ System.out.println(ERR + "Cantidad inválida."); break; }
 
                     var item = new ItemFactura(p, cant);
-                    fact.agregarItem(num, item);
+                    Command cmd = new AgregarItemFacturaCommand(fact, num, item);
+                    invoker.executeCommand(cmd);
                     System.out.println(OK + "Ítem agregado: " + item);
                 } catch (NumberFormatException e){
                     System.out.println(ERR + "Datos numéricos inválidos.");
@@ -359,7 +363,8 @@ public class App {
                     System.out.print("N° factura: "); int num=Integer.parseInt(sc.nextLine());
                     if (fact.obtenerFactura(num).isEmpty()){ System.out.println(ERR + "Factura no existe."); break; }
                     var canales = List.of(CanalNotificacion.EMAIL, CanalNotificacion.SMS, CanalNotificacion.PANTALLA);
-                    fact.emitirFactura(num, canales);
+                    Command cmd = new EmitirFacturaCommand(fact, num, canales);
+                    invoker.executeCommand(cmd);
                     System.out.println(OK + "Factura emitida.");
                     fact.obtenerFactura(num).ifPresent(System.out::println);
                 } catch (NumberFormatException e){
@@ -370,7 +375,8 @@ public class App {
                 try {
                     System.out.print("N° factura: "); int n=Integer.parseInt(sc.nextLine());
                     if (fact.obtenerFactura(n).isEmpty()){ System.out.println(ERR + "Factura no existe."); break; }
-                    fact.pagarFactura(n);
+                    Command cmd = new PagarFacturaCommand(fact, n);
+                    invoker.executeCommand(cmd);
                     System.out.println(OK + "Factura pagada.");
                 } catch (NumberFormatException e){
                     System.out.println(ERR + "Número inválido.");
@@ -380,7 +386,8 @@ public class App {
                 try {
                     System.out.print("N° factura: "); int n=Integer.parseInt(sc.nextLine());
                     if (fact.obtenerFactura(n).isEmpty()){ System.out.println(ERR + "Factura no existe."); break; }
-                    fact.anularFactura(n);
+                    Command cmd = new AnularFacturaCommand(fact, n);
+                    invoker.executeCommand(cmd);
                     System.out.println(OK + "Factura anulada.");
                 } catch (NumberFormatException e){
                     System.out.println(ERR + "Número inválido.");
@@ -398,6 +405,12 @@ public class App {
                 } catch (NumberFormatException e){
                     System.out.println(ERR + "Número inválido.");
                 }
+            }
+            case "h" -> {
+                System.out.println("Historial de comandos ejecutados:");
+                invoker.getCommandHistory().forEach(cmd -> 
+                    System.out.println("- " + cmd.getClass().getSimpleName())
+                );
             }
             default -> {  }
         }
